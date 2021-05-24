@@ -23,6 +23,12 @@
             /* border: 2px solid green; */
         }
 
+        h2 {
+            text-align: center;
+            padding-bottom: 20px;
+            /* border: 2px solid green; */
+        }
+
         .popup {
             position: absolute;
             border: 0.5px solid maroon;
@@ -39,8 +45,11 @@
 <body>
     <div class="chart-container">
         <h1 class="headline">
-            Number of Children in Poverty in the United States
+            Real GDP 2019 (thousands of chained 2012 dollars)
         </h1>
+        <h2>
+            data: BEA
+        </h2>
 
         <svg width="1250px" height="500px"></svg>
         <div class="popup"></div>
@@ -59,7 +68,7 @@
 
     // //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
     Promise.all([ //waits for all the data to load, then when loaded will return it all in one array called res
-        d3.json("topo2.json"),
+        d3.json("gdp2.json"),
     ])
         .then(ready)
         .catch((err) => {
@@ -70,14 +79,14 @@
         let raw = res[0]
 
         let county = topojson.feature(raw, raw.objects.county);
-        let state = topojson.feature(raw, raw.objects.state);
+        let state = topojson.feature(raw, raw.objects.cb_2018_us_state_20m);
 
         let width = 1250;
         let height = 700;
 
-        let radius = d3.scaleSqrt()
-            .domain([0, 1e5])
-            .range([0, 15]);
+        // let radius = d3.scaleSqrt()
+        //     .domain([0, 1e8])
+        //     .range([0, 15]);
 
         console.log(county, state)
 
@@ -86,54 +95,65 @@
         let myProjection = d3.geoAlbersUsa()
             .fitSize([width, height], county)
 
-
         //path function
         let path = d3.geoPath()
             .projection(myProjection)
 
-        let innerlines = topojson.mesh(raw, raw.objects.state, function (a, b) {
+        let innerlines = topojson.mesh(raw, raw.objects.cb_2018_us_state_20m, function (a, b) {
             return a != b;
         });
 
 
-        svg
-            .selectAll(".states")
-            .attr("class", "states")
-            .data(state.features)
-            .join("path")
-            .attr("d", path)
-            .style("fill", "#eee")
-            .style("stroke", "black")
-            .style("stroke-width", 1.5)
-            .style("pointer-events", "none")
+        // svg
+        //     .selectAll(".states")
+        //     .attr("class", "states")
+        //     .data(state.features)
+        //     .join("path")
+        //     .attr("d", path)
+        //     .style("fill", "#eee")
+        //     .style("stroke", "black")
+        //     .style("stroke-width", 1.5)
+        //     .style("pointer-events", "none")
 
 
-        let states = svg
-            .append("path")
-            .attr("d", path(innerlines))
-            .style("fill", "none")
-            .style("stroke", "black")
-            // .style("stroke-width", 2)
-            .style("pointer-events", "none")
+        // let states = svg
+        //     .append("path")
+        //     .attr("d", path(innerlines))
+        //     .style("fill", "none")
+        //     .style("stroke", "black")
+        //     // .style("stroke-width", 2)
+        //     .style("pointer-events", "none")
+
+        // let color = d3.scaleQuantize([1, 10], d3.schemeBlues[9])
+
+        // let color = d3.scaleQuantize([1,5], d3.schemeReds[5])
+
+        // let color = d3.scaleQuantile([-10, 0, 2, 4, 6, 10], d3.schemeBlues[7])
+        let color = d3.scaleQuantile([-10, -5, 0, 3, 6, 10], ["#e34a33", "#fdbb84", "#fee8c8", "white", "#ece7f2", "#a6bddb", "#2b8cbe"])
+            // .range(["red", "orange", "white", "green", "blue", "black", "grey"])
 
         let counties = svg.append("g")
-            // .attr("class", "bubble")
-            .selectAll(".counties")
-            .data(county.features.filter(d => d.geometry != null).sort((a, b) => d3.descending(a.properties.pop_18_in_poverty, b.properties.pop_18_in_poverty)))
-            .join("circle")
+            .selectAll(".path")
+            // .data(county.features.properties.x2019.map(function(d) { return +d; }))
+            .data(county.features.filter(d => d.geometry != null).sort((a, b) => d3.descending(a.properties.ggdp, b.properties.ggdp)))
+            .join("path")
             .attr("class", function (d) { return "counties p-" + d.properties.GEOID })
-            .attr("cx", d => {
-                return path.centroid(d)[0]
-            })
-            .attr("cy", d => {
-                return path.centroid(d)[1]
-            })
-            .style("fill", "orange")
-            .attr("fill-opacity", 0.5)
+            .attr("fill", d => color(d.properties.ggdp))
+            .attr("d", path)
+            // .style("fill", "orange")
+            // .attr("fill-opacity", 0.5)
             .style("stroke", "grey")
             .style("stroke-width", .2)
-            .attr("transform", d => "translate(${projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])})")
-            .attr("r", d => radius(d.properties.pop_18_in_poverty))
+            // .attr("transform", d => "translate(${projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])})")
+
+
+
+        svg.append("path")
+            .datum(topojson.mesh(raw, raw.objects.cb_2018_us_state_20m, (a, b) => a !== b))
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-linejoin", "round")
+            .attr("d", path);
 
         let popup = d3.select(".popup")
 
@@ -149,14 +169,16 @@
                 .style("opacity", 1)
                 .style("left", (pointer_event.x + 20) + "px")
                 .style("top", (pointer_event.y - 20) + "px")
-                .html("In " + "<b>" + d.properties.Geo_QName + "<b>, there are " + "<b>" + d.properties.pop_18_in_poverty + "<b>" + " children in poverty.")
+                .html("<b>" + d.properties.geo_name + "<b>'s Real GDP grew " + "<b>" + d.properties.ggdp + "<b>" + " in 2019")
         })
 
         counties.on("mouseout", (pointer_event, d) => {
             svg.select(".p-" + d.properties.GEOID)
+                .attr("fill", d => color(d.properties.ggdp))
+                .attr("d", path)
                 .style("stroke-width", 0.5)
                 .style("opacity", 1)
-                .attr("fill-opacity", 0.5)
+                // .attr("fill-opacity", 0.5)
                 .style("stroke", "grey")
                 .raise()
 
