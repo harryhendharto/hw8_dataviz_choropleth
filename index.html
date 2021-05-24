@@ -37,14 +37,6 @@
             opacity: 0;
         }
 
-        .legend {
-            display: table;
-            margin: 100 100 100 100;
-            font-family: "Helvetica Neue", sans-serif;
-            font-size: 12px;
-            height: 35px;
-            width: 250px;
-        }
     </style>
     <!-- add your script blocks at the end -->
 
@@ -109,48 +101,7 @@
             return a != b;
         });
 
-
-        // svg
-        //     .selectAll(".states")
-        //     .attr("class", "states")
-        //     .data(state.features)
-        //     .join("path")
-        //     .attr("d", path)
-        //     .style("fill", "#eee")
-        //     .style("stroke", "black")
-        //     .style("stroke-width", 1.5)
-        //     .style("pointer-events", "none")
-
-        // let states = svg
-        //     .append("path")
-        //     .attr("d", path(innerlines))
-        //     .style("fill", "none")
-        //     .style("stroke", "black")
-        //     // .style("stroke-width", 2)
-        //     .style("pointer-events", "none")
-
-        // let color = d3.scaleQuantize([1, 10], d3.schemeBlues[9])
-
-        // let color = d3.scaleQuantile([-10, 0, 2, 4, 6, 10], d3.schemeBlues[7])
         let color = d3.scaleQuantile([-10, -5, 0, 3, 6, 10], ["#e34a33", "#fdbb84", "#fee8c8", "white", "#ece7f2", "#a6bddb", "#2b8cbe"])
-            // .range(["red", "orange", "white", "green", "blue", "black", "grey"])
-
-
-
-
-        // let legend = svg.append(d3.legend)
-        //     // .attr("class", "legend")
-        //     .color()
-        //     .shapeHeight(10)
-        //     .shapeWidth(50)
-        //     .shapePadding(0)
-        //     .labelOffset(5)
-        //     .labelFormat(d3.format("%"))
-        //     .orient("horizontal")
-        //     .labelAlign("start")
-        //     .scale(color);
-
-        // d3.select(".legend").call(legend);
 
 
         let counties = svg.append("g")
@@ -207,7 +158,6 @@
 
         })
 
-        -10, -5, 0, 3, 6, 10
 
         let keys = ["Higher than 10%", "6 to 10%", "3 to 6%", "0 to 3%", "-5 to 0%", "-5 to -10%", "Lower than -10%", "Data unavailable"]
 
