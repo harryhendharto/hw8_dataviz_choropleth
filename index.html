@@ -48,7 +48,7 @@
             Real GDP 2019 (thousands of chained 2012 dollars)
         </h1>
         <h2>
-            data: BEA
+            data: Bureau of Economic Analysis
         </h2>
 
         <svg width="1250px" height="500px"></svg>
@@ -84,10 +84,6 @@
         let width = 1250;
         let height = 700;
 
-        // let radius = d3.scaleSqrt()
-        //     .domain([0, 1e8])
-        //     .range([0, 15]);
-
         console.log(county, state)
 
         let svg = d3.select("body").select("svg")
@@ -103,7 +99,6 @@
             return a != b;
         });
 
-
         // svg
         //     .selectAll(".states")
         //     .attr("class", "states")
@@ -115,7 +110,6 @@
         //     .style("stroke-width", 1.5)
         //     .style("pointer-events", "none")
 
-
         // let states = svg
         //     .append("path")
         //     .attr("d", path(innerlines))
@@ -125,8 +119,6 @@
         //     .style("pointer-events", "none")
 
         // let color = d3.scaleQuantize([1, 10], d3.schemeBlues[9])
-
-        // let color = d3.scaleQuantize([1,5], d3.schemeReds[5])
 
         // let color = d3.scaleQuantile([-10, 0, 2, 4, 6, 10], d3.schemeBlues[7])
         let color = d3.scaleQuantile([-10, -5, 0, 3, 6, 10], ["#e34a33", "#fdbb84", "#fee8c8", "white", "#ece7f2", "#a6bddb", "#2b8cbe"])
@@ -140,12 +132,10 @@
             .attr("class", function (d) { return "counties p-" + d.properties.GEOID })
             .attr("fill", d => color(d.properties.ggdp))
             .attr("d", path)
-            // .style("fill", "orange")
             // .attr("fill-opacity", 0.5)
             .style("stroke", "grey")
             .style("stroke-width", .2)
             // .attr("transform", d => "translate(${projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])})")
-
 
 
         svg.append("path")
@@ -169,7 +159,7 @@
                 .style("opacity", 1)
                 .style("left", (pointer_event.x + 20) + "px")
                 .style("top", (pointer_event.y - 20) + "px")
-                .html("<b>" + d.properties.geo_name + "<b>'s Real GDP grew " + "<b>" + d.properties.ggdp + "<b>" + " in 2019")
+                .html("<b>" + d.properties.geo_name + "<b>'s Real GDP grew " + "<b>" + parseFloat(d.properties.ggdp).toFixed(2) + "<b>" + "% in 2019")
         })
 
         counties.on("mouseout", (pointer_event, d) => {
